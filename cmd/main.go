@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/kylie-sre/wrappers/internal/dataset"
-	"github.com/kylie-sre/wrappers/internal/jobs"
-	"github.com/kylie-sre/wrappers/internal/storage"
+	"github.com/kylie-sre/wrappers/pkg/dataset"
+	"github.com/kylie-sre/wrappers/pkg/jobs"
+	"github.com/kylie-sre/wrappers/pkg/storage"
 )
 
 type Args struct {
@@ -45,7 +45,7 @@ func main() {
 		jobs.Storage(storageInstance),
 		jobs.Dataset(datasetInstance),
 	}
-	job := jobs.NewAggregationMP(options...)
+	job := jobs.New(options...)
 	if err = job.Run(); err != nil {
 		os.Exit(1)
 	}
