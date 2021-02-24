@@ -16,8 +16,8 @@ func Discounted(val float64) Option {
 type aggregator struct {
 }
 
-func NewAggregator() *aggregator {
-	return new(aggregator)
+func New() *aggregator {
+	return &aggregator{}
 }
 
 func (a *aggregator) Values() []byte {

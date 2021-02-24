@@ -33,6 +33,19 @@ func Dataset(dataset dataset.Dataset) Option {
 	}
 }
 
+func Aggregator(aggregator aggregator.Aggregator) Option {
+	return func(j *job) {
+		j.aggregator = aggregator
+	}
+}
+
+func Discount(discount discount.Discounter) Option {
+	return func(j *job) {
+		j.discount = discount
+	}
+}
+
+
 type job struct {
 	storage     storage.Creator
 	dataset     dataset.Dataset
@@ -60,7 +73,7 @@ func (a *job) Run() (err error) {
 	switch err = iterator.Next(&record); err.(type) {
 	case Done:
 		break
-	case nil:
+	case error:
 		return fmt.Errorf("error fetching next result: %v", err)
 	default:
 		if err = a.aggregator.Add(record.B()); err != nil {
