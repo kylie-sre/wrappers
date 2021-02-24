@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"fmt"
+	"strings"
 	
 	"github.com/kylie-sre/wrappers/pkg/aggregator"
 	"github.com/kylie-sre/wrappers/pkg/dataset"
@@ -85,8 +86,8 @@ func (a *job) Run() (err error) {
 	for key, quantities := range aggregated.S(a.aggregator.Values()) {
 		var original, discounted float64
 		
-		_, _, uom := parseKey(key)
-		if original, discounted, err = a.discount.Discount(uom, quantities); err != nil {
+		k := Key(key)
+		if original, discounted, err = a.discount.Discount(k.UOM(), quantities); err != nil {
 			return
 		}
 		var b []byte
@@ -121,6 +122,33 @@ func (r Aggregated) S([]byte) Aggregated {
 	return Aggregated{}
 }
 
-func parseKey(string) (string, string, string) {
-	return "", "", ""
+// composed key: ${Customer}::${Subscription}::${UOM}
+type key [3]string
+
+func (k key) Customer() string {
+	return k[0]
+}
+
+func (k key) Subscription() string {
+	return k[1]
+}
+
+func (k key) UOM() string {
+	return k[2]
+}
+
+func (k key) Compose() string {
+	return fmt.Sprintf("%s::%s::%s", k[0], k[1], k[2])
+}
+
+func Key(s ...string) key {
+	switch len(s) {
+	case 1:
+		x := strings.Split(s[0], "::")
+		return key{x[0], x[1], x[2]}
+	case 3:
+		return key{s[0], s[1], s[2]}
+	default:
+		panic("lulz")
+	}
 }
